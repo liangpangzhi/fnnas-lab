@@ -2,6 +2,15 @@
 
 在 Windows 电脑上用一台虚拟机跑飞牛 fnOS，不用买真机就能安装系统、安装 FPK 应用、用本机浏览器打开应用界面。
 
+## 下载
+
+现成程序不用编译，直接下载：
+
+- 单文件版（推荐）：[`fnnas-lab-single-v2.4.0.exe`](https://github.com/liangpangzhi/fnnas-lab/releases/download/v2.4.0/fnnas-lab-single-v2.4.0.exe) — 127.6 MB，双击即用
+- 使用说明：[`usage-v2.4.0.txt`](https://github.com/liangpangzhi/fnnas-lab/releases/download/v2.4.0/usage-v2.4.0.txt)
+
+全部版本见 [Releases](https://github.com/liangpangzhi/fnnas-lab/releases)。
+
 整个软件是纯 Python 标准库 + 随包携带的便携版 QEMU，**不需要用户安装 Python、也不需要单独装虚拟机软件**。
 
 ## 功能
