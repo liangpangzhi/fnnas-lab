@@ -1,0 +1,23 @@
+# PyInstaller 产物
+build/*/
+dist/
+*.spec.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# 虚拟机运行时与磁盘（体积巨大，绝不入库）
+runtime/
+tools/
+fnnas-data/
+*.qcow2
+*.iso
+*.vfd
+
+# 日志与临时文件
+*.log
+.archive/
+_*.py
+_screen.*
