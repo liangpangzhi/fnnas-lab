@@ -33,7 +33,6 @@ QEMU_SRC = ROOT / "runtime" / "qemu"
 BUILD = ROOT / "build"
 WORK = BUILD / "_work_single"
 PACK = BUILD / "_pack_single"
-SLIM = BUILD / "_slim_runtime" / "qemu"
 PAYLOAD = BUILD / "_payload" / "runtime.zip"
 DIST = ROOT / "dist"
 APPNAME = "飞牛fnOS本地测试环境"
@@ -99,9 +98,14 @@ def build_exe():
 
 
 def make_slim_runtime(slim=True):
-    """把 runtime/qemu 精简后放到构建目录（保留目录结构，DLL 全留）。"""
+    """把 runtime/qemu 精简后放到构建目录（保留目录结构，DLL 全留）。
+
+    瘦身版与完整版分目录存放，互不覆盖，重复打包时直接复用。
+    """
     say("准备运行时（%s）" % ("瘦身" if slim else "完整复制"))
-    shutil.rmtree(SLIM.parent, ignore_errors=True)
+    print("提示：构建目录若已存在会直接复用；QEMU 运行时更新后请先删除 build/_slim_runtime")
+    SLIM = BUILD / ("_slim_runtime" if slim else "_full_runtime") / "qemu"
+    SLIM.mkdir(parents=True, exist_ok=True)
     n = 0
     raw = 0
     skipped = 0
@@ -116,17 +120,21 @@ def make_slim_runtime(slim=True):
                 continue
             src = Path(cur) / fn
             dst = out_dir / fn
-            try:
-                os.link(src, dst)          # 硬链接，不额外占空间
-            except OSError:
-                shutil.copy2(src, dst)
+            if not dst.exists():      # 复用上次构建结果，已存在就跳过
+                try:
+                    os.link(src, dst)     # 硬链接，不额外占空间
+                except OSError:
+                    try:
+                        shutil.copy2(src, dst)
+                    except OSError:
+                        pass
             n += 1
             raw += src.stat().st_size
     print("保留 %d 个文件 %.0f MB，跳过 %d 个" % (n, raw / 2 ** 20, skipped))
     return SLIM
 
 
-def make_payload():
+def make_payload(SLIM):
     say("压缩运行时")
     PAYLOAD.parent.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
@@ -180,8 +188,8 @@ def main():
     ver = app_version()
     print("版本 %s" % ver)
     exe = build_exe()
-    make_slim_runtime(slim=not args.no_slim)
-    payload = make_payload()
+    slim_dir = make_slim_runtime(slim=not args.no_slim)
+    payload = make_payload(slim_dir)
     append_payload(exe, payload, ver)
 
 
